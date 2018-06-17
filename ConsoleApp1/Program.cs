@@ -97,10 +97,23 @@ namespace ServerApplication
 
                 if (response != string.Empty)
                 {
-                    Console.WriteLine("Sent To Client: " + response);
-                    byte[] data = Encoding.ASCII.GetBytes(response);
-                    socket.Send(data);
-                    serverSocket.BeginAccept(new AsyncCallback(CallBack), null);
+                    /*if(response == "Invaled")
+                    {*/
+                        foreach (var current_socket in clientSockets)
+	                    {
+                            response = current_socket.RemoteEndPoint.ToString();
+                            byte[] data2 = Encoding.ASCII.GetBytes(response);
+                            current_socket.Send(data2);
+                            Console.WriteLine("Sent To Client: " + response);
+                            //serverSocket.BeginAccept(new AsyncCallback(CallBack), null);
+	                    }
+                    /*}
+                    else{*/
+                        
+                        //byte[] data = Encoding.ASCII.GetBytes(response);
+                        //socket.Send(data);
+                        serverSocket.BeginAccept(new AsyncCallback(CallBack), null);
+                    //}
                 }
 
                 //conn.Close();
