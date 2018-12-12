@@ -93,6 +93,9 @@
     <Compile Include="Entities\Wall.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameContainer.cs" />
+    <Compile Include="GoldRushGame.cs" />
+    <Compile Include="GoldRushGameContainer.cs" />
+    <Compile Include="GoldRushMatchMaking.cs" />
     <Compile Include="Match.cs" />
     <Compile Include="MatchMaking.cs" />
     <Compile Include="Program.cs" />

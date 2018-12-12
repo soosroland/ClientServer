@@ -20,6 +20,7 @@ namespace ServerApplication
         private static List<Match> matches = new List<Match>();
         private static Game game;
         private static MatchMaking matchMaking = new MatchMaking();
+        private static GoldRushMatchMaking goldRushMatchMaking = new GoldRushMatchMaking();
         private static GameContainer gameContainer = matchMaking.gameContainer;
         private static Socket socket;
 
@@ -28,41 +29,11 @@ namespace ServerApplication
         {
             Console.Title = "Server";
             SetupServer();
-
-            //StartGame();
             Console.ReadLine();
-            //var tcpClient = new TcpClient("192.168.1.103", 8889); // Emulatoraddress
-                                                                           //var tcpClient = new TcpClient("10.0.2.15", 8889); // Emulator address
-            //NetworkStream clientStream = tcpClient.GetStream();
-
-            //byte[] outStream = System.Text.Encoding.ASCII.GetBytes("Rendben");
-            //clientStream.Write(outStream, 0, outStream.Length);
-            //clientStream.Flush();
-            //response = current_socket.RemoteEndPoint.ToString();
-            //byte[] data2 = Encoding.ASCII.GetBytes(response);
-            //current_socket.Send(data2);
-            //Console.WriteLine("Sent To Client: " + "192.168.0.171");
-
-            /*Console.ReadLine();
-
-            byte[] outStream2 = System.Text.Encoding.ASCII.GetBytes("Elment");
-            clientStream.Write(outStream2, 0, outStream2.Length);
-            clientStream.Flush();*/
-            //response = current_socket.RemoteEndPoint.ToString();
-            //byte[] data2 = Encoding.ASCII.GetBytes(response);
-            //current_socket.Send(data2);
-            //Console.WriteLine("Sent To Client: " + "192.168.0.171");
 
             Console.ReadKey();
             CloseAllSockets();
         }
-
-        /*private static void StartGame(){
-            string level_num = "1";
-            int hp=5;
-            string speed="normal";
-            game = new Game(level_num, hp, speed);
-        }*/
 
         private static void SetupServer()
         {
@@ -113,30 +84,27 @@ namespace ServerApplication
                         int sajt = matchMaking.getIdForIp(socket.RemoteEndPoint.ToString().Split(':')[0]);
                         TcpClient tcpClient;
                         NetworkStream clientStream;
-                        int max = matchMaking.GetPlayerNumber(sajt);
-                        List<int> nums = new List<int>();
-                        List<String> ips = new List<String>();
-                        int match_id = matchMaking.getIdForIp(socket.RemoteEndPoint.ToString().Split(':')[0]);
-                        for (int i = 0; i < max; i++)
+                        if (matchMaking.GetPlayerNumber(sajt) != -1)
                         {
-                            nums.Add(matchMaking.getNumForIp(matchMaking.GetIps(match_id, i)));
-                            ips.Add(matchMaking.GetIps(match_id, i));
-                        }
-                        for (int i = max; i > 0; i--)
-                        {
-                            Console.WriteLine("End the game for: " + sajt);
-                            matchMaking.RemoveFromGame(id, nums[i-1]); // get Player ID in a match
-                            String ip = ips[max - i];
-                            matchMaking.RemovePlayer(ips[max - i]);
-                            if (max-i != id) // A disconnecteltnek nem küldök
+                            for (int i = 0; i < matchMaking.GetPlayerNumber(sajt); i++)
                             {
-                                tcpClient = new TcpClient(ip, 8890);// matchMaking.GetIps(sajt, i), 8890);
-                                clientStream = tcpClient.GetStream();
-                                clientStream.Write(outStream, 0, outStream.Length);
-                                clientStream.Flush();
+                                Console.WriteLine("End the game for: " + sajt);
+                                matchMaking.RemoveFromGame(id, matchMaking.getNumForIp(socket.RemoteEndPoint.ToString().Split(':')[0]), socket.RemoteEndPoint.ToString().Split(':')[0]); // get Player ID in a match
+                                matchMaking.RemovePlayer(socket.RemoteEndPoint.ToString().Split(':')[0]);
+                                if (i != id) // A disconnecteltnek nem küldjük
+                                {
+                                    tcpClient = new TcpClient(matchMaking.GetIps(sajt, i), 8890);
+                                    clientStream = tcpClient.GetStream();
+                                    clientStream.Write(outStream, 0, outStream.Length);
+                                    clientStream.Flush();
+                                }
                             }
+                            matchMaking.RemoveGame(id, socket.RemoteEndPoint.ToString().Split(':')[0]);
                         }
-                        matchMaking.RemoveGame(id);
+                        else
+                        {
+                            matchMaking.RemovePlayer(socket.RemoteEndPoint.ToString().Split(':')[0]);
+                        }
                     }
 
                     clientSockets.Remove(socket);
@@ -155,29 +123,6 @@ namespace ServerApplication
 
                 if (text == string.Empty)
                 {
-                    /*foreach (var current_socket_ipaddress in clientSocketsIPAddress)
-	                    {*/
-                        //Console.WriteLine(current_socket.RemoteEndPoint.ToString().Split(':')[0]);
-                        //String current_socket_ip_address = current_socket.RemoteEndPoint.ToString().Split(':')[0];
-                        //var tcpClient = new TcpClient("10.0.2.15", 8889); // Emulator address
-
-
-                        /*var tcpClient = new TcpClient(current_socket_ipaddress, 8890); // Emulator address
-                        NetworkStream clientStream = tcpClient.GetStream();
-                        
-                        byte[] outStream = System.Text.Encoding.ASCII.GetBytes("Megy");
-                        clientStream.Write(outStream, 0, outStream.Length);
-                        clientStream.Flush();*/
-
-
-                        //response = current_socket.RemoteEndPoint.ToString();
-                        //byte[] data2 = Encoding.ASCII.GetBytes(response);
-                        //current_socket.Send(data2);
-                        //Console.WriteLine("Sent To Client: " + current_socket_ipaddress);
-                        //serverSocket.BeginAccept(new AsyncCallback(CallBack), null);
-                    /*}
-                }
-                else{*/
                     Console.WriteLine("Client forcefully disconnected else");
                     int id = matchMaking.getIdForIp(socket.RemoteEndPoint.ToString().Split(':')[0]); // get match ID
                     if (id != -1)
@@ -191,7 +136,7 @@ namespace ServerApplication
                             for (int i = 0; i < matchMaking.GetPlayerNumber(sajt); i++)
                             {
                                 Console.WriteLine("End the game for: "+sajt);
-                                matchMaking.RemoveFromGame(id, matchMaking.getNumForIp(socket.RemoteEndPoint.ToString().Split(':')[0])); // get Player ID in a match
+                                matchMaking.RemoveFromGame(id, matchMaking.getNumForIp(socket.RemoteEndPoint.ToString().Split(':')[0]), socket.RemoteEndPoint.ToString().Split(':')[0]); // get Player ID in a match
                                 matchMaking.RemovePlayer(socket.RemoteEndPoint.ToString().Split(':')[0]);
                                 if (i != id) // A disconnecteltnek nem küldjük
                                 {
@@ -201,15 +146,11 @@ namespace ServerApplication
                                     clientStream.Flush();
                                 }
                             }
-                            matchMaking.RemoveGame(id);
+                            matchMaking.RemoveGame(id, socket.RemoteEndPoint.ToString().Split(':')[0]);
                         }
                         else
                         {
                             matchMaking.RemovePlayer(socket.RemoteEndPoint.ToString().Split(':')[0]);
-                            /*tcpClient = new TcpClient(socket.RemoteEndPoint.ToString().Split(':')[0], 8890);
-                            clientStream = tcpClient.GetStream();
-                            clientStream.Write(outStream, 0, outStream.Length);
-                            clientStream.Flush();*/
                         }
                     }
 
@@ -232,8 +173,6 @@ namespace ServerApplication
             int sajt;
             try
             {
-            /*using (TcpClient tcpClient = new TcpClient(ip, 8890))
-            {*/
             TcpClient tcpClient;
             NetworkStream clientStream;
             byte[] outStream;
@@ -245,7 +184,7 @@ namespace ServerApplication
                         break;
                     case "Matchmaking":
                         matchMaking.AddMatch(temp[1], temp[2], int.Parse(temp[3]), temp[4], temp[5], ip);
-                        Console.WriteLine("Matchmaking");
+                        Console.WriteLine("Matchmaking"+ip);
                         break;
                     case "Cancel Matchmaking":
                         Console.WriteLine("Cancel Matchmaking");
@@ -337,6 +276,89 @@ namespace ServerApplication
 
                     Console.WriteLine("Sent:" + System.Text.Encoding.ASCII.GetString(outStream));
                         break;
+                    case "GRight button Request":
+                        Console.WriteLine("Right button request");
+                        sajt = goldRushMatchMaking.getIdForIp(ip); // sajt=id
+                        goldRushMatchMaking.Step_Right(sajt, ip);
+                        temptext = "CharacterPosition";
+                        for (int i = 0; i < goldRushMatchMaking.GetPlayerNumber(sajt); i++)
+                        {
+                            temptext += ";";
+                            temptext += goldRushMatchMaking.GetCharacterPosition(sajt, goldRushMatchMaking.GetIps(sajt, i));
+                        }
+                        outStream = System.Text.Encoding.ASCII.GetBytes(temptext);
+                        for (int i = 0; i < goldRushMatchMaking.GetPlayerNumber(sajt); i++)
+                        {
+                            tcpClient = new TcpClient(goldRushMatchMaking.GetIps(sajt, i), 8891);
+                            clientStream = tcpClient.GetStream();
+                            clientStream.Write(outStream, 0, outStream.Length);
+                            clientStream.Flush();
+                        }
+                        Console.WriteLine("Sent:" + System.Text.Encoding.ASCII.GetString(outStream));
+                        break;
+                    case "GLeft button Request":
+                        Console.WriteLine("Left button request");
+                        sajt = goldRushMatchMaking.getIdForIp(ip);
+                        goldRushMatchMaking.Step_Left(sajt, ip);
+                        temptext = "CharacterPosition";
+                        for (int i = 0; i < goldRushMatchMaking.GetPlayerNumber(sajt); i++)
+                        {
+                            temptext += ";";
+                            temptext += goldRushMatchMaking.GetCharacterPosition(sajt, goldRushMatchMaking.GetIps(sajt, i));
+                        }
+                        outStream = System.Text.Encoding.ASCII.GetBytes(temptext);
+                        for (int i = 0; i < goldRushMatchMaking.GetPlayerNumber(sajt); i++)
+                        {
+                            tcpClient = new TcpClient(goldRushMatchMaking.GetIps(sajt, i), 8891);
+                            clientStream = tcpClient.GetStream();
+                            clientStream.Write(outStream, 0, outStream.Length);
+                            clientStream.Flush();
+                        }
+                        Console.WriteLine("Sent:" + System.Text.Encoding.ASCII.GetString(outStream));
+                        break;
+                    case "GDown button Request":
+                        Console.WriteLine("Down button request");
+                        sajt = goldRushMatchMaking.getIdForIp(ip);
+                        goldRushMatchMaking.Step_Down(sajt, ip);
+                        Console.WriteLine(goldRushMatchMaking.GetCharacterPosition(sajt, ip));
+                        temptext = "CharacterPosition";
+                        for (int i = 0; i < goldRushMatchMaking.GetPlayerNumber(sajt); i++)
+                        {
+                            temptext += ";";
+                            temptext += goldRushMatchMaking.GetCharacterPosition(sajt, goldRushMatchMaking.GetIps(sajt, i));
+                        }
+                        outStream = System.Text.Encoding.ASCII.GetBytes(temptext);
+                        for (int i = 0; i < goldRushMatchMaking.GetPlayerNumber(sajt); i++)
+                        {
+                            tcpClient = new TcpClient(goldRushMatchMaking.GetIps(sajt, i), 8891);
+                            clientStream = tcpClient.GetStream();
+                            clientStream.Write(outStream, 0, outStream.Length);
+                            clientStream.Flush();
+                        }
+                        Console.WriteLine("Sent:" + System.Text.Encoding.ASCII.GetString(outStream));
+                        break;
+                    case "GUp button Request":
+                        Console.WriteLine("Up button request");
+                        sajt = goldRushMatchMaking.getIdForIp(ip);
+                        goldRushMatchMaking.Step_Up(sajt, ip);
+                        Console.WriteLine(goldRushMatchMaking.GetCharacterPosition(sajt, ip));
+                        temptext = "CharacterPosition";
+                        for (int i = 0; i < goldRushMatchMaking.GetPlayerNumber(sajt); i++)
+                        {
+                            temptext += ";";
+                            temptext += goldRushMatchMaking.GetCharacterPosition(sajt, goldRushMatchMaking.GetIps(sajt, i));
+                        }
+                        outStream = System.Text.Encoding.ASCII.GetBytes(temptext);
+                        for (int i = 0; i < goldRushMatchMaking.GetPlayerNumber(sajt); i++)
+                        {
+                            tcpClient = new TcpClient(goldRushMatchMaking.GetIps(sajt, i), 8891);
+                            clientStream = tcpClient.GetStream();
+                            clientStream.Write(outStream, 0, outStream.Length);
+                            clientStream.Flush();
+                        }
+                        
+                        Console.WriteLine("Sent:" + System.Text.Encoding.ASCII.GetString(outStream));
+                        break;
                     case "Special button Request":
                         Console.WriteLine("Special button Request");
                         break;
@@ -344,12 +366,106 @@ namespace ServerApplication
                         sajt = matchMaking.getIdForIp(ip);
                         matchMaking.Open(sajt, int.Parse(temp[1]), int.Parse(temp[2]));
                         break;
+                    case "GOpen":
+                        sajt = goldRushMatchMaking.getIdForIp(ip);
+                        goldRushMatchMaking.Open(sajt, int.Parse(temp[1]), int.Parse(temp[2]));
+                        break;
                     case "Treasure":
                         sajt = matchMaking.getIdForIp(ip);
                         matchMaking.Treasure(sajt, int.Parse(temp[1]), int.Parse(temp[2]));
                         break;
                     case "MatchMakingCanceled":
                         matchMaking.CancelMatch(ip);
+                        break;
+                    case "Leave":
+                        int id = matchMaking.getIdForIp(socket.RemoteEndPoint.ToString().Split(':')[0]); // get match ID
+                        if (id != -1)
+                        {
+                            outStream = System.Text.Encoding.ASCII.GetBytes("DisconnectGame");
+                            sajt = matchMaking.getIdForIp(socket.RemoteEndPoint.ToString().Split(':')[0]);
+                            if (matchMaking.GetPlayerNumber(sajt) != -1)
+                            {
+                                for (int i = 0; i < matchMaking.GetPlayerNumber(sajt); i++)
+                                {
+                                    Console.WriteLine("End the game for: " + sajt);
+                                    matchMaking.RemoveFromGame(id, matchMaking.getNumForIp(socket.RemoteEndPoint.ToString().Split(':')[0]), socket.RemoteEndPoint.ToString().Split(':')[0]); // get Player ID in a match
+                                    matchMaking.RemovePlayer(socket.RemoteEndPoint.ToString().Split(':')[0]);
+                                    if (i != id) // A disconnecteltnek nem küldjük
+                                    {
+                                        tcpClient = new TcpClient(matchMaking.GetIps(sajt, i), 8890);
+                                        clientStream = tcpClient.GetStream();
+                                        clientStream.Write(outStream, 0, outStream.Length);
+                                        clientStream.Flush();
+                                    }
+                                }
+                                matchMaking.RemoveGame(id, socket.RemoteEndPoint.ToString().Split(':')[0]);
+                            }
+                            else
+                            {
+                                matchMaking.RemovePlayer(socket.RemoteEndPoint.ToString().Split(':')[0]);
+                            }
+                        }
+                        break;
+                    case "GLeave":
+                        id = goldRushMatchMaking.getIdForIp(socket.RemoteEndPoint.ToString().Split(':')[0]); // get match ID
+                        if (id != -1)
+                        {
+                            outStream = System.Text.Encoding.ASCII.GetBytes("DisconnectGame");
+                            sajt = goldRushMatchMaking.getIdForIp(socket.RemoteEndPoint.ToString().Split(':')[0]);
+                            if (goldRushMatchMaking.GetPlayerNumber(sajt) != -1)
+                            {
+                                for (int i = 0; i < goldRushMatchMaking.GetPlayerNumber(sajt); i++)
+                                {
+                                    Console.WriteLine("End the game for: " + sajt);
+                                    goldRushMatchMaking.RemoveFromGame(id, goldRushMatchMaking.getNumForIp(socket.RemoteEndPoint.ToString().Split(':')[0]), socket.RemoteEndPoint.ToString().Split(':')[0]); // get Player ID in a match
+                                    goldRushMatchMaking.RemovePlayer(socket.RemoteEndPoint.ToString().Split(':')[0]);
+                                    if (i != id) // A disconnecteltnek nem küldjük
+                                    {
+                                        tcpClient = new TcpClient(goldRushMatchMaking.GetIps(sajt, i), 8891);
+                                        clientStream = tcpClient.GetStream();
+                                        clientStream.Write(outStream, 0, outStream.Length);
+                                        clientStream.Flush();
+                                    }
+                                }
+                                goldRushMatchMaking.RemoveGame(id, socket.RemoteEndPoint.ToString().Split(':')[0]);
+                            }
+                            else
+                            {
+                                goldRushMatchMaking.RemovePlayer(socket.RemoteEndPoint.ToString().Split(':')[0]);
+                            }
+                        }
+                        break;
+                    case "GoldRushMatchmaking":
+                        goldRushMatchMaking.AddMatch(temp[1], ip);
+                        break;
+                    case "GCoin":
+                        id = goldRushMatchMaking.getIdForIp(socket.RemoteEndPoint.ToString().Split(':')[0]); // get match ID
+                        if (id != -1)
+                        {
+                            outStream = System.Text.Encoding.ASCII.GetBytes("DeleteCoin;" + temp[1] + ";" + temp[2]);
+                            sajt = goldRushMatchMaking.getIdForIp(socket.RemoteEndPoint.ToString().Split(':')[0]);
+                            if (goldRushMatchMaking.GetPlayerNumber(sajt) != -1)
+                            {
+                                for (int i = 0; i < goldRushMatchMaking.GetPlayerNumber(sajt); i++)
+                                {
+                                    tcpClient = new TcpClient(goldRushMatchMaking.GetIps(sajt, i), 8891);
+                                    clientStream = tcpClient.GetStream();
+                                    clientStream.Write(outStream, 0, outStream.Length);
+                                    clientStream.Flush();
+                                }
+                                /*for (int i = 0; i < goldRushMatchMaking.GetPlayerNumber(sajt); i++)
+                                {
+                                    if (i != id) // Annak aki felszedte a Coint nem küldjük
+                                    {
+                                        tcpClient = new TcpClient(goldRushMatchMaking.GetIps(sajt, i), 8891);
+                                        clientStream = tcpClient.GetStream();
+                                        clientStream.Write(outStream, 0, outStream.Length);
+                                        clientStream.Flush();
+                                    }
+                                }*/
+                            }
+                        }
+                        Console.WriteLine("Coin: " + int.Parse(temp[1])+ ";" +int.Parse(temp[2]));
                         break;
                     default:
                         Console.WriteLine("DEFAULT :O");

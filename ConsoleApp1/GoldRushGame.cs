@@ -12,7 +12,7 @@ using System.Net.Sockets;
 
 namespace ConsoleApp1
 {
-    public class Game : CCLayer
+    public class GoldRushGame : CCLayer
     {
         Treasure treasure;
         Cannon cannon;
@@ -127,7 +127,7 @@ namespace ConsoleApp1
 
         //public CCLabel Time_label { get => time_label; set => time_label = value; }
 
-        public Game(String level, int hp, String speed, int id, List<String> players)
+        public GoldRushGame(String level, int hp, String speed, int id, List<String> players)
         {
             _level = level;
             //_mainLayer = mainLayer;
@@ -136,7 +136,7 @@ namespace ConsoleApp1
             Game_id = id;
             Player_ips = players;
             player_count = Player_ips.Count;
-            for(int i = 0; i < player_count; i++)
+            for (int i = 0; i < player_count; i++)
             {
                 char_pos.Add(new int[2]);
             }
@@ -145,15 +145,15 @@ namespace ConsoleApp1
             /*Schedule(CollisionCheck, interval: 0.1f); //0.042f);
             Schedule(ShowTimer, interval: 1.0f);*/
             Console.WriteLine("Game Created");
-            for (int i=0; i<Player_ips.Count;i++)
+            for (int i = 0; i < Player_ips.Count; i++)
             {
                 TcpClient tcpClient = new TcpClient(Player_ips[i], 8889);
                 NetworkStream clientStream = tcpClient.GetStream();
-                byte[] outStream = System.Text.Encoding.ASCII.GetBytes("StartGame;" + i);
+                byte[] outStream = System.Text.Encoding.ASCII.GetBytes("GoldRushStart;" + i);
                 clientStream.Write(outStream, 0, outStream.Length);
                 clientStream.Flush();
             }
-            
+
             //CCSimpleAudioEngine.SharedEngine.PlayBackgroundMusic("sounds/backgroundmusic", true);
             //CCSimpleAudioEngine.SharedEngine.BackgroundMusicVolume = 0.3f;
             /*}
@@ -219,63 +219,63 @@ namespace ConsoleApp1
             //Point center = new Point(384 / 2, 240 / 2);
             //CCPoint center = new CCPoint(384 / 2, 240 / 2);
             //CCPoint center2 = new CCPoint(center-center);
-           /* char_diff = new Point(10, 10);
-            //tileMap.TileLayersContainer.Position -= new CocosSharp.CCPoint(char_diff.X,char_diff.Y);
+            /* char_diff = new Point(10, 10);
+             //tileMap.TileLayersContainer.Position -= new CocosSharp.CCPoint(char_diff.X,char_diff.Y);
 
-            foreach (var ce in charmodel_enemy_List)
-            {
-                ce.Position -= new CCPoint(char_diff.X, char_diff.Y);
-            }
+             foreach (var ce in charmodel_enemy_List)
+             {
+                 ce.Position -= new CCPoint(char_diff.X, char_diff.Y);
+             }
 
-            foreach (var treasure in treasure_List)
-            {
-                treasure.Position -= new CCPoint(char_diff.X, char_diff.Y);
-            }
+             foreach (var treasure in treasure_List)
+             {
+                 treasure.Position -= new CCPoint(char_diff.X, char_diff.Y);
+             }
 
-            foreach (var shooter in shooter_List)
-            {
-                shooter.Position -= new CCPoint(char_diff.X, char_diff.Y);
-            }
+             foreach (var shooter in shooter_List)
+             {
+                 shooter.Position -= new CCPoint(char_diff.X, char_diff.Y);
+             }
 
-            foreach (var wall in shootingWall_List)
-            {
-                wall.Position -= new CCPoint(char_diff.X, char_diff.Y);
-            }
+             foreach (var wall in shootingWall_List)
+             {
+                 wall.Position -= new CCPoint(char_diff.X, char_diff.Y);
+             }
 
-            foreach (var door in door_List)
-            {
-                door.Position -= new CCPoint(char_diff.X, char_diff.Y);
-            }
+             foreach (var door in door_List)
+             {
+                 door.Position -= new CCPoint(char_diff.X, char_diff.Y);
+             }
 
-            foreach (var doorkey in doorkey_List)
-            {
-                doorkey.Position -= new CCPoint(char_diff.X, char_diff.Y);
-            }
+             foreach (var doorkey in doorkey_List)
+             {
+                 doorkey.Position -= new CCPoint(char_diff.X, char_diff.Y);
+             }
 
-            foreach (var treasurekey in treasurekey_List)
-            {
-                treasurekey.Position -= new CCPoint(char_diff.X, char_diff.Y);
-            }
+             foreach (var treasurekey in treasurekey_List)
+             {
+                 treasurekey.Position -= new CCPoint(char_diff.X, char_diff.Y);
+             }
 
-            foreach (var freezedrink in freezedrink_List)
-            {
-                freezedrink.Position -= new CCPoint(char_diff.X, char_diff.Y);
-            }
+             foreach (var freezedrink in freezedrink_List)
+             {
+                 freezedrink.Position -= new CCPoint(char_diff.X, char_diff.Y);
+             }
 
-            foreach (var immortalitydrink in immortalitydrink_List)
-            {
-                immortalitydrink.Position -= new CCPoint(char_diff.X, char_diff.Y);
-            }
+             foreach (var immortalitydrink in immortalitydrink_List)
+             {
+                 immortalitydrink.Position -= new CCPoint(char_diff.X, char_diff.Y);
+             }
 
-            foreach (var coin in coin_List)
-            {
-                coin.Position -= new CCPoint(char_diff.X, char_diff.Y);
-            }
+             foreach (var coin in coin_List)
+             {
+                 coin.Position -= new CCPoint(char_diff.X, char_diff.Y);
+             }
 
-            foreach (var finish in finish_List)
-            {
-                finish.Position -= new CCPoint(char_diff.X, char_diff.Y);
-            }*/
+             foreach (var finish in finish_List)
+             {
+                 finish.Position -= new CCPoint(char_diff.X, char_diff.Y);
+             }*/
 
             // Tolás vége
 
@@ -513,7 +513,7 @@ namespace ConsoleApp1
                     finishes[i, j] = false;
                 }
             }
-            
+
             /*wall_id_List = new List<int>();
             charmodel_id1_List = new List<int>();
             charmodel_id2_List = new List<int>();
@@ -528,12 +528,12 @@ namespace ConsoleApp1
             foreach (var item in tileMap.Tilesets[0].Tiles)
             {
                 int id = item.Value.Id;
-                String temp="";
+                String temp = "";
                 foreach (var properties in item.Value.Properties)
                 {
                     if (properties.Key == "isWall" && properties.Value == "true")
                     {
-                        wall_id_List.Add(id+1);
+                        wall_id_List.Add(id + 1);
                     }
                     if (properties.Key == "isDoor" && properties.Value == "true")
                     {
@@ -556,7 +556,7 @@ namespace ConsoleApp1
                     {
                         finish_id_List.Add(id + 1);
                     }
-                    if(properties.Key == "isCoin" && properties.Value == "true")
+                    if (properties.Key == "isCoin" && properties.Value == "true")
                     {
                         coin_id_List.Add(id + 1);
                     }
@@ -1061,7 +1061,7 @@ namespace ConsoleApp1
                     // Create Finish Entity
 
                     finishes[tile.X, tile.Y] = true;
-                    
+
                     finish = new Finish();
                     finish.PositionX = tile.X * 16;
                     finish.PositionY = tile.Y * 16;
@@ -1070,7 +1070,7 @@ namespace ConsoleApp1
                 if (coin_id_List.Contains(tile.Gid))
                 {
                     // Create Coin Entity
-                    
+
                     coin = new Coin();
                     coin.PositionX = tile.X * 16;
                     coin.PositionY = tile.Y * 16;
@@ -1096,10 +1096,10 @@ namespace ConsoleApp1
                 if (shooter_down_List.Contains(tile.Gid))
                 {
                     // Create Shooting Down Entity
-                    
+
                     int x = 0;
                     int y = -20;
-                    
+
                     cannon = new Cannon(x, y, "down", _speed);
 
                     cannon.PositionX = tile.X * 16;
@@ -1107,7 +1107,7 @@ namespace ConsoleApp1
 
                     cannon.row = tile.X;
                     cannon.column = tile.Y;
-                    
+
                     shooter_List.Add(cannon);
                 }
                 if (shooter_up_List.Contains(tile.Gid))
@@ -1150,7 +1150,7 @@ namespace ConsoleApp1
 
                     int x = 20;
                     int y = 0;
-                    
+
                     cannon = new Cannon(x, y, "right", _speed);
 
                     cannon.PositionX = tile.X * 16;
@@ -1191,7 +1191,7 @@ namespace ConsoleApp1
                     char_pos[0][1] = tile.Y + 1;
 
                 }
-                else if(charmodel_id2_List.Contains(tile.Gid))
+                else if (charmodel_id2_List.Contains(tile.Gid))
                 {
                     // Create a Character Entity
                     character = new CharacterModel("pplayer_1_", "2");
@@ -1218,7 +1218,7 @@ namespace ConsoleApp1
 
                     character.PositionX = 200;
                     character.PositionY = 112;
-                 
+
                     charmodel_List.Add(character);
                 }
 
@@ -1226,7 +1226,7 @@ namespace ConsoleApp1
                 {
                     // Create a Character Entity
                     character = new CharacterModel("pplayer_2_", "1");
-                   
+
                     character.PositionX = 184;
                     character.PositionY = 128;
 
@@ -1292,7 +1292,7 @@ namespace ConsoleApp1
                     Console.WriteLine("Game Won");
                     for (int i = 0; i < Player_ips.Count; i++)
                     {
-                        TcpClient tcpClient = new TcpClient(Player_ips[i], 8890);
+                        TcpClient tcpClient = new TcpClient(Player_ips[i], 8891);
                         NetworkStream clientStream = tcpClient.GetStream();
                         byte[] outStream = System.Text.Encoding.ASCII.GetBytes("Victory;" + i);
                         clientStream.Write(outStream, 0, outStream.Length);
@@ -1380,7 +1380,7 @@ namespace ConsoleApp1
                     Console.WriteLine("Game Won");
                     for (int i = 0; i < Player_ips.Count; i++)
                     {
-                        TcpClient tcpClient = new TcpClient(Player_ips[i], 8890);
+                        TcpClient tcpClient = new TcpClient(Player_ips[i], 8891);
                         NetworkStream clientStream = tcpClient.GetStream();
                         byte[] outStream = System.Text.Encoding.ASCII.GetBytes("Victory;" + i);
                         clientStream.Write(outStream, 0, outStream.Length);
@@ -1469,7 +1469,7 @@ namespace ConsoleApp1
                     Console.WriteLine("Game Won");
                     for (int i = 0; i < Player_ips.Count; i++)
                     {
-                        TcpClient tcpClient = new TcpClient(Player_ips[i], 8890);
+                        TcpClient tcpClient = new TcpClient(Player_ips[i], 8891);
                         NetworkStream clientStream = tcpClient.GetStream();
                         byte[] outStream = System.Text.Encoding.ASCII.GetBytes("Victory;" + i);
                         clientStream.Write(outStream, 0, outStream.Length);
@@ -1556,14 +1556,14 @@ namespace ConsoleApp1
                     // TODO VICTORY
                     for (int i = 0; i < Player_ips.Count; i++)
                     {
-                        TcpClient tcpClient = new TcpClient(Player_ips[i], 8890);
+                        TcpClient tcpClient = new TcpClient(Player_ips[i], 8891);
                         NetworkStream clientStream = tcpClient.GetStream();
                         byte[] outStream = System.Text.Encoding.ASCII.GetBytes("Victory;" + i);
                         clientStream.Write(outStream, 0, outStream.Length);
                         clientStream.Flush();
                     }
                     Console.WriteLine("Game Won");
-                    
+
                 }
                 int move_unit;
                 if (doors[char_pos[num][0], char_pos[num][1] - 1] == true)
@@ -1886,7 +1886,7 @@ namespace ConsoleApp1
 
         public void Open(int x, int y)
         {
-            walls[x,y] = false;
+            walls[x, y] = false;
         }
 
         public void Treasure(int x, int y)
